@@ -78,6 +78,20 @@ app.get("/api/products", async (req, res) => {
 });
 
 
+// GET SINGLE PRODUCT BY FINDING ID
+
+app.get("/api/products/:id", async (req, res) => {
+  try {
+    const item = await Product.findById(req.params.id);
+    if (!item) return res.status(404).json({ message: "Product not found" });
+
+    res.json(item);
+  } catch (error) {
+    res.status(500).json({ message: "Error retrieving product" });
+  }
+});
+
+
 
 // START SERVER
 
