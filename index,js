@@ -56,6 +56,27 @@ app.get("/", (req, res) => {
   res.send("FoodHub Backend is running...");
 });
 
+// GET ALL PRODUCTS API
+// Supports query params in api url: ?search=&category=
+
+app.get("/api/products", async (req, res) => {
+  try {
+    const { search, category } = req.query;
+    const filter = {};
+
+    if (category) filter.category = category;
+    if (search) filter.title = { $regex: search, $options: "i" };
+
+    const items = await Product.find(filter)
+      .sort({ priority: -1, createdAt: -1 })
+      .limit(100);
+
+    res.json(items);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch products" });
+  }
+});
+
 
 
 // START SERVER
