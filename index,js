@@ -2,19 +2,65 @@ const express = require("express");
 const app = express();
 require("dotenv").config();
 const mongoose = require("mongoose");
-
 const cors = require("cors");
 
 
 
-// Data Base Connection
+// Middlewares
+
+app.use(cors());
+app.use(express.json());
+
+
+
+// 1. DATABASE CONNECTION
+
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("MongoDB Atlas Connected Successfully"))
   .catch((err) => console.error("MongoDB Connection Failed:", err));
 
-// start serverrr
-const PORT = process.env.PORT || 3000;
+// PRODUCT MODEL
+
+const ProductSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  shortDescription: { type: String, required: true, maxlength: 160 },
+  fullDescription: { type: String },
+  price: { type: Number, required: true },
+  category: {
+    type: String,
+    required: true,
+    enum: [
+      "Pizza",
+      "Burger",
+      "Dessert",
+      "Pasta",
+      "Sandwich",
+      "Fried Chicken",
+      "Drinks",
+    ],
+  },
+  imageUrl: { type: String },
+  rating: { type: Number, default: 0 }, 
+  priority: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now },
+});
+
+// Collection: "products"
+const Product = mongoose.model("Product", ProductSchema);
+
+
+
+// Test server route
+app.get("/", (req, res) => {
+  res.send("FoodHub Backend is running...");
+});
+
+
+
+// START SERVER
+
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`FoodHub Backend running on port ${PORT}`);
