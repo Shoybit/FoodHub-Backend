@@ -92,6 +92,21 @@ app.get("/api/products/:id", async (req, res) => {
 });
 
 
+// CREATE PRODUCT API
+
+app.post("/api/products", async (req, res) => {
+  try {
+    const product = new Product(req.body);
+    const saved = await product.save();
+
+    res.status(201).json(saved);
+  } catch (error) {
+    res.status(400).json({ message: "Failed to create product", error });
+  }
+});
+
+
+
 
 // START SERVER
 
