@@ -1,131 +1,136 @@
 const express = require("express");
 const app = express();
 require("dotenv").config();
-const mongoose = require("mongoose");
 const cors = require("cors");
-
-
+const { MongoClient, ObjectId } = require("mongodb");
 
 // Middlewares
-
 app.use(cors());
 app.use(express.json());
 
+// MongoDB Connection
+const uri = process.env.MONGODB_URI;
+const client = new MongoClient(uri);
 
+let productsCollection;
 
-// 1. DATABASE CONNECTION
+async function connectDB() {
+  try {
+    await client.connect();
+    console.log("MongoDB Atlas Connected Successfully");
+    const db = client.db("foodhubDB");
+    productsCollection = db.collection("products");
+  } catch (err) {
+    console.error("MongoDB Connection Failed:", err);
+  }
+}
 
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => console.log("MongoDB Atlas Connected Successfully"))
-  .catch((err) => console.error("MongoDB Connection Failed:", err));
+connectDB();
 
-// PRODUCT MODEL
+// Middleware to ensure DB connection exists
+function checkDB(req, res, next) {
+  if (!productsCollection) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Database not connected" });
+  }
+  next();
+}
 
-const ProductSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  shortDescription: { type: String, required: true, maxlength: 160 },
-  fullDescription: { type: String },
-  price: { type: Number, required: true },
-  category: {
-    type: String,
-    required: true,
-    enum: [
-      "Pizza",
-      "Burger",
-      "Dessert",
-      "Pasta",
-      "Sandwich",
-      "Fried Chicken",
-      "Drinks",
-    ],
-  },
-  imageUrl: { type: String },
-  rating: { type: Number, default: 0 }, 
-  priority: { type: Number, default: 0 },
-  createdAt: { type: Date, default: Date.now },
-});
-
-// Collection: "products"
-const Product = mongoose.model("Product", ProductSchema);
-
-
-
-// Test server route
+// Test route
 app.get("/", (req, res) => {
   res.send("FoodHub Backend is running...");
 });
 
-// GET ALL PRODUCTS API
-// Supports query params in api url: ?search=&category=
-
-app.get("/api/products", async (req, res) => {
+// GET ALL PRODUCTS
+app.get("/api/products", checkDB, async (req, res) => {
   try {
     const { search, category } = req.query;
     const filter = {};
 
-    if (category) filter.category = category;
-    if (search) filter.title = { $regex: search, $options: "i" };
+    if (category)
+      filter.category = { $regex: new RegExp(`^${category}$`, "i") };
+    if (search) filter.title = { $regex: new RegExp(search, "i") };
 
-    const items = await Product.find(filter)
+    const items = await productsCollection
+      .find(filter)
       .sort({ priority: -1, createdAt: -1 })
-      .limit(100);
+      .toArray();
 
     res.json(items);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch products" });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch products" });
   }
 });
 
-
-// GET SINGLE PRODUCT BY FINDING ID
-
-app.get("/api/products/:id", async (req, res) => {
+// GET SINGLE PRODUCT
+app.get("/api/products/:id", checkDB, async (req, res) => {
   try {
-    const item = await Product.findById(req.params.id);
-    if (!item) return res.status(404).json({ message: "Product not found" });
-
+    const item = await productsCollection.findOne({
+      _id: new ObjectId(req.params.id),
+    });
+    if (!item)
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
     res.json(item);
-  } catch (error) {
-    res.status(500).json({ message: "Error retrieving product" });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ success: false, message: "Error retrieving product" });
   }
 });
 
-
-// CREATE PRODUCT API
-
-app.post("/api/products", async (req, res) => {
+// CREATE PRODUCT
+app.post("/api/products", checkDB, async (req, res) => {
   try {
-    const product = new Product(req.body);
-    const saved = await product.save();
+    const newProduct = { ...req.body, createdAt: new Date() };
+    const result = await productsCollection.insertOne(newProduct);
 
-    res.status(201).json(saved);
-  } catch (error) {
-    res.status(400).json({ message: "Failed to create product", error });
+    const createdItem = await productsCollection.findOne({
+      _id: result.insertedId,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Product added successfully",
+      product: createdItem,
+    });
+  } catch (err) {
+    console.error("Create product error:", err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to create product",
+      error: err.message,
+    });
   }
 });
 
-
-// DELETE PRODUCT FROM DB
-
-app.delete("/api/products/:id", async (req, res) => {
+// DELETE PRODUCT
+app.delete("/api/products/:id", checkDB, async (req, res) => {
   try {
-    await Product.findByIdAndDelete(req.params.id);
+    const result = await productsCollection.deleteOne({
+      _id: new ObjectId(req.params.id),
+    });
+    if (result.deletedCount === 0)
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
     res.status(204).send();
-  } catch (error) {
-    res.status(500).json({ message: "Failed to delete product" });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to delete product" });
   }
 });
-
-
-
-
-
-
-// START SERVER
 
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
   console.log(`FoodHub Backend running on port ${PORT}`);
 });
