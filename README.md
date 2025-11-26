@@ -1,5 +1,10 @@
 # 🍕 FoodHub — Food Ordering Platform
 
+![Frontend](https://img.shields.io/badge/Frontend-Next.js-blue)
+![Backend](https://img.shields.io/badge/Backend-Node.js-green)
+![Database](https://img.shields.io/badge/Database-MongoDB-lightgreen)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+
 FoodHub is a modern food ordering platform with a **Next.js frontend** and **Node.js + Express backend**.
 It allows users to browse, search, and order food items with a smooth, responsive interface and secure backend API.
 
@@ -7,9 +12,15 @@ It allows users to browse, search, and order food items with a smooth, responsiv
 
 ## 🌐 Live URLs
 
-* **Frontend (Next.js)**: [https://foodhub-one-neon.vercel.app/](https://foodhub-one-neon.vercel.app/)
-* **Backend (Node.js + Express)**: [https://foodhub-server.vercel.app/](https://foodhub-server.vercel.app/)
+* 🚀 **Frontend (Next.js)**: [https://foodhub-one-neon.vercel.app/](https://foodhub-one-neon.vercel.app/)
+* 🛠️ **Backend (Node.js + Express)**: [https://foodhub-server.vercel.app/](https://foodhub-server.vercel.app/)
 
+---
+
+## 💻 GitHub Repository
+
+* Frontend : [https://github.com/Shoybit/FoodHub](https://github.com/Shoybit/FoodHub)
+* Backend : https://github.com/Shoybit/FoodHub-Backend
 ---
 
 ## 🧰 Tech Stack
@@ -40,39 +51,26 @@ FoodHub/
 
 ## ⚙️ Backend Setup
 
-### 1️⃣ Clone the backend repository
-
 ```bash
+# Clone the backend repository
 git clone https://github.com/Shoybit/FoodHub-Backend.git
 cd FoodHub-Backend
-```
 
-### 2️⃣ Install dependencies
-
-```bash
+# Install dependencies
 npm install
-```
 
-### 3️⃣ Add environment variables
-
-Create a `.env` file:
-
-```env
+# Add environment variables
+# Create a .env file
 MONGODB_URI=your_mongodb_connection_string
 PORT=5000
-```
 
-### 4️⃣ Run locally
-
-```bash
+# Run locally
 npm start
 ```
 
 ---
 
 ## 📚 Backend API Endpoints
-
-### 🍽️ Product Routes
 
 | Method | Endpoint        | Description                       |
 | ------ | --------------- | --------------------------------- |
@@ -86,30 +84,19 @@ npm start
 
 ## ⚙️ Frontend Setup
 
-### 1️⃣ Clone the frontend repository
-
 ```bash
+# Clone the frontend repository
 git clone https://github.com/Shoybit/FoodHub.git
 cd FoodHub
-```
 
-### 2️⃣ Install dependencies
-
-```bash
+# Install dependencies
 npm install
-```
 
-### 3️⃣ Run locally
-
-```bash
+# Run locally
 npm run dev
 ```
 
-Frontend will run on:
-
-```
-http://localhost:3000
-```
+Frontend will run on: `http://localhost:3000`
 
 ---
 
@@ -121,7 +108,7 @@ http://localhost:3000
 4. Add environment variables for the backend (if needed)
 5. Deploy instantly
 
-Vercel automatically converts Express backend routes into serverless functions.
+> Vercel automatically converts Express backend routes into serverless functions.
 
 ---
 
