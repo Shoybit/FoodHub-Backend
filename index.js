@@ -16,8 +16,9 @@ let productsCollection;
 
 async function connectDB() {
   try {
-    await client.connect();
-    console.log("MongoDB Atlas Connected Successfully");
+    // await client.connect();
+    // console.log("MongoDB Atlas Connected Successfully");
+
     const db = client.db("foodhubDB");
     productsCollection = db.collection("products");
   } catch (err) {
