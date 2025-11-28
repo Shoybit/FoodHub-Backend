@@ -115,7 +115,7 @@ Frontend will run on: `http://localhost:3000`
 ## 📄 License
 
 MIT License
-
+Md Shoyaib Islam
 ---
 
 ✨ **FoodHub — Modern, Fast, Secure, and Serverless Food Ordering Platform**
